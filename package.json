@@ -1,0 +1,38 @@
+{
+  "name": "nocturn",
+  "description": "Dark Mode Enforcer for legacy sites — automatically applies a clean, customizable dark theme inversion to text-heavy websites that lack native dark mode support.",
+  "version": "1.0.0",
+  "keywords": [
+    "dark-mode",
+    "browser-extension",
+    "manifest-v3",
+    "webextensions",
+    "dark-theme"
+  ],
+  "homepage": "https://github.com/Nocturn/Nocturn",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:firefox": "vite build --browser firefox",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit"
+  },
+  "author": "Nocturn",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/Nocturn"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.244",
+    "@types/node": "^22.0.0",
+    "jsdom": "^30.1.3",
+    "sharp": "^0.35.5",
+    "typescript": "^5.6.0",
+    "vite": "^5.0.0"
+  }
+}

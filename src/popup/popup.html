@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nocturn — Quick Controls</title>
+  <style>
+    /* Nocturn popup — dark-native utility UI.
+       rem units scale with the browser's root font size;
+       every control has a visible focus indicator; and
+       prefers-reduced-motion is respected throughout. */
+    :root {
+      --nocturn-popup-bg: #0e0e10;
+      --nocturn-popup-surface: #151517;
+      --nocturn-popup-surface-hover: #1c1c1f;
+      --nocturn-popup-border: #2a2a2e;
+      --nocturn-popup-text: #e2e2e2;
+      --nocturn-popup-muted: #8a8a94;
+      /* Twilight indigo — a night-sky accent that ties the UI to the
+         crescent-moon icon instead of a generic system blue. */
+      --nocturn-popup-accent: #818cf8;
+      --nocturn-popup-accent-hover: #9394f2;
+      --nocturn-popup-danger: #ef4444;
+      --nocturn-popup-warning: #f59e0b;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 16px; }
+    body {
+      width: 320px;
+      min-height: 80px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+      background: var(--nocturn-popup-bg);
+      color: var(--nocturn-popup-text);
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      border: 1px solid var(--nocturn-popup-border);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+    }
+    .hidden { display: none !important; }
+    .loading-state { display: flex; justify-content: center; align-items: center; padding: 24px; }
+    .spinner {
+      width: 28px; height: 28px;
+      border: 3px solid var(--nocturn-popup-border);
+      border-top-color: var(--nocturn-popup-accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .header { display: flex; align-items: center; gap: 10px; padding: 12px 16px 8px; }
+    .logo { width: 28px; height: 28px; flex-shrink: 0; }
+    .title { display: flex; flex-direction: column; }
+    .name { font-size: 0.9375rem; font-weight: 600; color: var(--nocturn-popup-text); }
+    .subtitle { font-size: 0.6875rem; color: var(--nocturn-popup-muted); line-height: 1.2; }
+    .toggle-section { padding: 12px 16px; }
+    /* 44px — meets the 44pt touch-target minimum for the primary action. */
+    .toggle-btn {
+      width: 100%; height: 44px;
+      background: var(--nocturn-popup-surface);
+      border: 1px solid var(--nocturn-popup-border);
+      border-radius: 10px; cursor: pointer;
+      display: flex; align-items: center;
+      padding: 0 14px; transition: all 0.2s ease; position: relative;
+    }
+    .toggle-btn:hover { background: var(--nocturn-popup-surface-hover); border-color: var(--nocturn-popup-accent); }
+    .toggle-btn--on { background: var(--nocturn-popup-accent); }
+    .toggle-btn--on:hover { background: var(--nocturn-popup-accent-hover); }
+    .toggle-label { font-size: 0.8125rem; font-weight: 500; z-index: 1; }
+    /* Toggle switch (visual indicator inside the button) */
+    .toggle-switch {
+      margin-left: auto;
+      width: 40px; height: 22px;
+      background: var(--nocturn-popup-border);
+      border-radius: 999px;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .toggle-switch.active { background: rgba(255,255,255,0.3); }
+    .toggle-switch::before {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 18px; height: 18px;
+      background: var(--nocturn-popup-text);
+      border-radius: 50%;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .toggle-switch.active::before {
+      transform: translateX(18px);
+      background: var(--nocturn-popup-bg);
+    }
+    .status {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 16px 14px; font-size: 0.6875rem; color: var(--nocturn-popup-muted);
+    }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--nocturn-popup-accent); }
+    .status-text { font-size: 0.6875rem; }
+    .quick-actions { display: flex; gap: 8px; padding: 8px 16px 4px; }
+    .action-btn {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px;
+      height: 32px; background: var(--nocturn-popup-surface);
+      border: 1px solid var(--nocturn-popup-border); border-radius: 8px;
+      cursor: pointer; font-size: 0.6875rem; color: var(--nocturn-popup-text);
+      transition: all 0.15s ease;
+    }
+    .action-btn:hover {
+      background: var(--nocturn-popup-surface-hover); border-color: var(--nocturn-popup-accent);
+      color: var(--nocturn-popup-accent);
+    }
+    .action-btn .icon { font-size: 0.8125rem; }
+    .site-override { display: flex; align-items: center; gap: 8px; padding: 10px 16px 14px; }
+    .site-override__label { font-size: 0.6875rem; color: var(--nocturn-popup-muted); min-width: 70px; }
+    .site-select {
+      flex: 1; height: 28px;
+      background: var(--nocturn-popup-surface);
+      border: 1px solid var(--nocturn-popup-border); border-radius: 8px;
+      color: var(--nocturn-popup-text); font-size: 0.75rem; padding: 0 8px;
+      cursor: pointer; transition: border-color 0.15s ease;
+    }
+    .error-state { padding: 16px; text-align: center; color: var(--nocturn-popup-muted); font-size: 0.75rem; }
+
+    /* Focus indicators — visible on keyboard navigation. */
+    .toggle-btn:focus-visible,
+    .action-btn:focus-visible,
+    .site-select:focus-visible {
+      outline: 2px solid var(--nocturn-popup-accent);
+      outline-offset: 2px;
+    }
+
+    /* Respect reduced-motion — disable all animation and transition. */
+    @media (prefers-reduced-motion: reduce) {
+      .spinner { animation: none; }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="popup-root">
+    <div id="loading" class="loading-state">
+      <div class="spinner"></div>
+    </div>
+
+    <div id="main" class="hidden">
+      <div class="header">
+        <img src="../assets/icons/icon-32.png" alt="Nocturn" class="logo" />
+        <div class="title">
+          <span class="name">Nocturn</span>
+          <span class="subtitle" id="site-label">…</span>
+        </div>
+      </div>
+
+      <div class="toggle-section">
+        <button id="toggle-btn" class="toggle-btn" aria-label="Toggle dark mode">
+          <span class="toggle-label">Dark mode</span>
+          <span class="toggle-switch"></span>
+        </button>
+      </div>
+
+      <div id="status" class="status hidden">
+        <span class="status-dot"></span>
+        <span class="status-text"></span>
+      </div>
+
+      <div class="quick-actions">
+        <button id="open-options" class="action-btn" aria-label="Settings">
+          <span class="icon" aria-hidden="true">⚙️</span> Settings
+        </button>
+        <button id="open-site-rules" class="action-btn" aria-label="Site rules">
+          <span class="icon" aria-hidden="true">🌐</span> Site rules
+        </button>
+      </div>
+
+      <div class="site-override">
+        <div class="site-override__label">This site:</div>
+        <select id="site-action" class="site-select">
+          <option value="auto">Auto-detect</option>
+          <option value="always-on">Always on</option>
+          <option value="always-off">Always off</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="error" class="hidden error-state">
+      <p>Nocturn is not active on this page.</p>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

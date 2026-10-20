@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nocturn — Settings</title>
+  <style>
+    :root {
+      --nocturn-bg: #0e0e10;
+      --nocturn-surface: #151517;
+      --nocturn-surface-hover: #1c1c1f;
+      --nocturn-border: #2a2a2e;
+      --nocturn-text: #e2e2e2;
+      --nocturn-muted: #8a8a94;
+      /* Twilight indigo — a night-sky accent that ties the UI to the
+         crescent-moon icon instead of a generic system blue. */
+      --nocturn-accent: #818cf8;
+      --nocturn-accent-hover: #9394f2;
+      --nocturn-danger: #ef4444;
+      --nocturn-success: #22c55e;
+      --nocturn-radius: 10px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 16px; }
+    body {
+      min-height: 100vh;
+      background: var(--nocturn-bg);
+      color: var(--nocturn-text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 24px; }
+    header { margin-bottom: 28px; }
+    h1 { font-size: 1.5rem; font-weight: 600; }
+    .subtitle { color: var(--nocturn-muted); font-size: 0.8125rem; margin-top: 4px; }
+    section.card {
+      background: var(--nocturn-surface);
+      border: 1px solid var(--nocturn-border);
+      border-radius: var(--nocturn-radius);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    section.card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    section.card .desc {
+      color: var(--nocturn-muted);
+      font-size: 0.75rem;
+      margin-bottom: 16px;
+    }
+    .toggle-switch {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--nocturn-border);
+    }
+    .toggle-switch:last-child { border: none; }
+    .toggle-switch .label { font-size: 0.8125rem; }
+    /* Semantic toggle button (role="switch") */
+    .toggle-switch .toggle {
+      position: relative;
+      width: 44px; height: 24px;
+      background: var(--nocturn-border);
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .toggle-switch .toggle::before {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 20px; height: 20px;
+      background: var(--nocturn-text);
+      border-radius: 50%;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .toggle-switch .toggle.active { background: var(--nocturn-accent); }
+    .toggle-switch .toggle.active::before { transform: translateX(20px); }
+    .toggle-switch .toggle:focus-visible {
+      outline: 2px solid var(--nocturn-accent);
+      outline-offset: 2px;
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--nocturn-border);
+    }
+    .slider-row:last-child { border: none; }
+    .slider-label {
+      min-width: 120px; font-size: 0.8125rem; color: var(--nocturn-text);
+    }
+    .slider-value {
+      width: 50px; text-align: right; font-size: 0.8125rem; font-weight: 600;
+      color: var(--nocturn-accent);
+    }
+    .slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      background: var(--nocturn-border);
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+      /* Filled track portion — driven by the --value custom property
+         that the script sets as a percentage. */
+      background: linear-gradient(to right, var(--nocturn-accent) 0%, var(--nocturn-accent) var(--value, 0%), var(--nocturn-border) var(--value, 0%), var(--nocturn-border) 100%);
+      background-size: 100% 100%;
+    }
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--nocturn-accent);
+      border: 2px solid var(--nocturn-bg);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .slider::-moz-range-thumb {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--nocturn-accent);
+      border: 2px solid var(--nocturn-bg);
+      cursor: pointer;
+    }
+    .slider:focus-visible {
+      outline: 2px solid var(--nocturn-accent);
+      outline-offset: 2px;
+    }
+    .section-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 28px 0 16px;
+      color: var(--nocturn-text);
+    }
+    /* Site rules table */
+    table.rules {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+    }
+    table.rules th,
+    table.rules td {
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--nocturn-border);
+    }
+    table.rules th {
+      color: var(--nocturn-muted);
+      font-weight: 600;
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .rule-action {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+    }
+    .badge-on  { background: rgba(129, 140, 248, 0.2); color: var(--nocturn-accent); }
+    .badge-off { background: rgba(239,68,68,0.2); color: var(--nocturn-danger); }
+    .badge-auto{ background: rgba(138,138,148,0.2); color: var(--nocturn-muted); }
+    .icon-btn {
+      background: none;
+      border: 1px solid var(--nocturn-border);
+      border-radius: 6px;
+      width: 28px; height: 28px;
+      cursor: pointer;
+      color: var(--nocturn-muted);
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .icon-btn:hover {
+      background: var(--nocturn-surface-hover);
+      color: var(--nocturn-text);
+      border-color: var(--nocturn-accent);
+    }
+    .icon-btn.danger:hover {
+      background: rgba(239,68,68,0.15);
+      color: var(--nocturn-danger);
+      border-color: var(--nocturn-danger);
+    }
+    .icon-btn:focus-visible {
+      outline: 2px solid var(--nocturn-accent);
+      outline-offset: 2px;
+    }
+    .add-rule-form {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .add-rule-form input {
+      flex: 1;
+      padding: 8px 12px;
+      background: var(--nocturn-surface-hover);
+      border: 1px solid var(--nocturn-border);
+      border-radius: 6px;
+      color: var(--nocturn-text);
+      font-size: 0.8125rem;
+    }
+    .add-rule-form input:focus-visible {
+      outline: 2px solid var(--nocturn-accent);
+      outline-offset: 2px;
+    }
+    .add-rule-form select {
+      background: var(--nocturn-surface);
+      border: 1px solid var(--nocturn-border);
+      border-radius: 6px;
+      color: var(--nocturn-text);
+      font-size: 0.8125rem;
+      padding: 0 8px;
+      cursor: pointer;
+    }
+    .add-rule-form select:focus-visible {
+      outline: 2px solid var(--nocturn-accent);
+      outline-offset: 2px;
+    }
+    .add-rule-form button {
+      padding: 8px 16px;
+      background: var(--nocturn-accent);
+      color: var(--nocturn-bg);
+      border: none;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .add-rule-form button:hover { background: var(--nocturn-accent-hover); }
+    .add-rule-form button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .actions-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+    }
+    .btn-reset {
+      background: none;
+      border: 1px solid var(--nocturn-border);
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      color: var(--nocturn-muted);
+      cursor: pointer;
+    }
+    .btn-reset:hover {
+      border-color: var(--nocturn-danger);
+      color: var(--nocturn-danger);
+    }
+    .btn-reset:focus-visible {
+      outline: 2px solid var(--nocturn-accent);
+      outline-offset: 2px;
+    }
+    .note {
+      color: var(--nocturn-muted);
+      font-size: 0.6875rem;
+      margin-top: 8px;
+    }
+
+    /* Respect reduced-motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Nocturn</h1>
+      <p class="subtitle">Dark Mode Enforcer — customize how Nocturn transforms websites without native dark mode support.</p>
+    </header>
+
+    <!-- Global settings -->
+    <section class="card">
+      <h2>Global Settings</h2>
+      <p class="desc">These apply to every site where Nocturn auto-enables.</p>
+
+      <div class="toggle-switch">
+        <span class="label">Enable Nocturn globally</span>
+        <button type="button" class="toggle" id="toggle-enabled" role="switch" aria-checked="false"></button>
+      </div>
+
+      <div class="toggle-switch">
+        <span class="label">Preserve media colors (images, videos)</span>
+        <button type="button" class="toggle" id="toggle-preserve-media" role="switch" aria-checked="false"></button>
+      </div>
+
+      <div class="toggle-switch">
+        <span class="label">Override CSS theme variables</span>
+        <button type="button" class="toggle" id="toggle-override-vars" role="switch" aria-checked="false"></button>
+      </div>
+
+      <div class="toggle-switch">
+        <span class="label">Force dark backgrounds</span>
+        <button type="button" class="toggle" id="toggle-force-bg" role="switch" aria-checked="false"></button>
+      </div>
+    </section>
+
+    <!-- Filter sliders -->
+    <h3 class="section-title">Dark Theme Filters</h3>
+    <section class="card">
+      <p class="desc">Fine-tune the visual appearance of inverted pages. Changes apply live to the active tab.</p>
+
+      <div class="slider-row">
+        <span class="slider-label">Brightness</span>
+        <input type="range" id="brightness" class="slider" min="50" max="200" step="1" value="115" data-setting="brightness" />
+        <span class="slider-value" id="brightness-value">1.15</span>
+      </div>
+
+      <div class="slider-row">
+        <span class="slider-label">Contrast</span>
+        <input type="range" id="contrast" class="slider" min="50" max="150" step="1" value="95" data-setting="contrast" />
+        <span class="slider-value" id="contrast-value">0.95</span>
+      </div>
+
+      <div class="slider-row">
+        <span class="slider-label">Sepia (warmth)</span>
+        <input type="range" id="sepia" class="slider" min="0" max="100" step="1" value="15" data-setting="sepia" />
+        <span class="slider-value" id="sepia-value">0.15</span>
+      </div>
+
+      <div class="slider-row">
+        <span class="slider-label">Grayscale</span>
+        <input type="range" id="grayscale" class="slider" min="0" max="100" step="1" value="5" data-setting="grayscale" />
+        <span class="slider-value" id="grayscale-value">0.05</span>
+      </div>
+
+      <div class="slider-row">
+        <span class="slider-label">Hue rotation</span>
+        <input type="range" id="hue-rotate" class="slider" min="0" max="360" step="1" value="180" data-setting="hueRotate" />
+        <span class="slider-value" id="hue-rotate-value">180°</span>
+      </div>
+
+      <div class="preview">
+        <span class="filter-value" id="filter-preview">invert(1) hue-rotate(180deg) brightness(1.15) contrast(0.95) sepia(0.15) grayscale(0.05)</span>
+      </div>
+      <p class="note">A live preview of the CSS filter applied to the page.</p>
+    </section>
+
+    <!-- Per-site rules -->
+    <h3 class="section-title">Site Rules</h3>
+    <section class="card">
+      <p class="desc">Control Nocturn behavior on specific sites. Patterns follow Chrome's match-pattern syntax (e.g. <code>https://*.wikipedia.org/*</code>).</p>
+
+      <div class="add-rule-form">
+        <input type="url" id="rule-pattern" placeholder="https://*.example.com/*" />
+        <select id="rule-action">
+          <option value="always-on">Always on</option>
+          <option value="always-off">Always off</option>
+        </select>
+        <button id="add-rule-btn" type="button">Add</button>
+      </div>
+
+      <table class="rules">
+        <thead>
+          <tr>
+            <th>Pattern</th>
+            <th>Action</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="rules-body">
+          <tr><td colspan="3" style="text-align:center;color:var(--nocturn-muted)">No rules configured yet.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="actions-bar">
+        <button class="btn-reset" id="reset-defaults" type="button">Reset to defaults</button>
+      </div>
+      <p class="note">Changes apply instantly and sync to your Chrome profile across devices.</p>
+    </section>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

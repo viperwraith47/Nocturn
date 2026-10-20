@@ -1,0 +1,62 @@
+{
+  "manifest_version": 3,
+  "name": "Nocturn",
+  "description": "Automatically applies a clean, customizable dark theme to text-heavy websites that lack native dark mode support.",
+  "version": "1.0.0",
+  "icons": {
+    "16": "assets/icons/icon-16.png",
+    "32": "assets/icons/icon-32.png",
+    "48": "assets/icons/icon-48.png",
+    "128": "assets/icons/icon-128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/index.js"],
+      "css": ["styles/dark-overrides.css"],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon-16.png",
+      "32": "assets/icons/icon-32.png",
+      "48": "assets/icons/icon-48.png"
+    }
+  },
+  "options_page": "options/options.html",
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y"
+      }
+    },
+    "_command_toggle": {
+      "suggested_key": { "default": "Ctrl+Shift+U" },
+      "description": "Toggle Nocturn dark mode on the current page"
+    },
+    "_command_enable": {
+      "suggested_key": { "default": "Ctrl+Shift+O" },
+      "description": "Enable Nocturn dark mode on the current page"
+    },
+    "_command_disable": {
+      "suggested_key": { "default": "Ctrl+Shift+P" },
+      "description": "Disable Nocturn dark mode on the current page"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}
