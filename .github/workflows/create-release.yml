@@ -26,5 +26,4 @@ jobs:
         run: |
           gh release create v1.0.2 \
             --title "v1.0.2" \
-            --notes "Nocturn v1.0.2 - Dark Mode Enforcer for legacy websites lacking native dark mode. Auto-applies a clean customizable dark theme with per-site whitelist/blacklist, adjustable brightness/contrast/sepia/grayscale/hue rotation, media toggle, keyboard shortcuts, MutationObserver for dynamic content, and lightweight vanilla TypeScript." \
-            --verify-tag
+            --notes "Nocturn v1.0.2 - Dark Mode Enforcer for legacy websites lacking native dark mode. Auto-applies a clean customizable dark theme with per-site whitelist/blacklist, adjustable brightness/contrast/sepia/grayscale/hue rotation, media toggle, keyboard shortcuts, MutationObserver for dynamic content, and lightweight vanilla TypeScript."
