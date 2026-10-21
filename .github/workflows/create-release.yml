@@ -10,6 +10,11 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+
       - name: Check if release already exists
         env:
           GH_TOKEN: ${{ github.token }}
