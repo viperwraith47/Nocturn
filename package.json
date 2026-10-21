@@ -1,7 +1,7 @@
 {
   "name": "nocturn",
   "description": "Dark Mode Enforcer for legacy sites — automatically applies a clean, customizable dark theme inversion to text-heavy websites that lack native dark mode support.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "keywords": [
     "dark-mode",
     "browser-extension",
