@@ -7,8 +7,12 @@ on:
 jobs:
   create-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Check if release already exists
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           if gh release view v1.0.2 --json tagName 2>/dev/null; then
             echo "Release v1.0.2 already exists, skipping"
@@ -17,6 +21,8 @@ jobs:
           echo "Release does not exist, creating..."
 
       - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh release create v1.0.2 \
             --title "v1.0.2" \
