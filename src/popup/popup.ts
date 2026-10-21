@@ -63,6 +63,7 @@ const statusText = statusEl?.querySelector('.status-text') as HTMLElement | null
 const loadingEl = document.getElementById('loading') as HTMLElement | null;
 const mainEl = document.getElementById('main') as HTMLElement | null;
 const errorEl = document.getElementById('error') as HTMLElement | null;
+const errorText = errorEl?.querySelector('.error-text') as HTMLElement | null;
 const openOptionsBtn = document.getElementById('open-options') as HTMLButtonElement | null;
 const openSiteRulesBtn = document.getElementById('open-site-rules') as HTMLButtonElement | null;
 const siteActionSelect = document.getElementById('site-action') as HTMLSelectElement | null;
@@ -99,6 +100,16 @@ function clearStatus(): void {
   statusEl?.classList.add('hidden');
 }
 
+/**
+ * Show a single, clear explanatory message in the error state, replacing the
+ * whole popup content. Used instead of a separate status line so the page is
+ * never showing two overlapping messages at once.
+ */
+function setError(message: string): void {
+  if (errorText) errorText.textContent = message;
+  setState('error');
+}
+
 /* ─── Communication with background / content script ──────────── */
 
 /** Send a message to the background service worker. */
@@ -128,7 +139,7 @@ async function init(): Promise<void> {
     // 1. Get the active tab to know the current URL.
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab?.id || !tab.url) {
-      setState('error');
+      setError('Nocturn is not active on this page.');
       return;
     }
     currentPageUrl = tab.url;
@@ -153,11 +164,9 @@ async function init(): Promise<void> {
 
     if (!tabState) {
       // Content script not available (e.g. chrome:// or extension page).
-      setState('error');
-      clearStatus();
-      setStatus('Nocturn cannot run on this page type.', 'warning');
       updateToggle(false, false);
       if (siteActionSelect) siteActionSelect.disabled = true;
+      setError("Nocturn can't run on this page.");
       return;
     }
 
@@ -173,7 +182,7 @@ async function init(): Promise<void> {
     updateSiteSelect(matchedRule);
 
     if (tabState.nativeDark) {
-      setStatus('Page has native dark mode', 'info');
+      setStatus('Uses native dark mode', 'info');
     } else {
       clearStatus();
     }
@@ -182,7 +191,7 @@ async function init(): Promise<void> {
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('[Nocturn popup] Init error:', err);
-    setState('error');
+    setError('Something went wrong. Try reloading.');
   } finally {
     setLoading(false);
   }
@@ -199,10 +208,13 @@ function updateToggle(enabled: boolean, nativeDark = false): void {
   if (!toggleBtn) return;
   toggleBtn.classList.toggle('toggle-btn--on', enabled);
   toggleBtn.disabled = nativeDark;
+  // Communicate state to assistive tech; the label itself stays static.
+  toggleBtn.setAttribute('aria-checked', String(enabled));
+  toggleBtn.setAttribute('aria-disabled', String(nativeDark));
   if (toggleSwitch) toggleSwitch.classList.toggle('active', enabled);
-  if (toggleLabel) {
-    toggleLabel.textContent = enabled ? 'Dark mode: ON' : 'Dark mode: OFF';
-  }
+  // The label is static — state is conveyed by the switch position and the
+  // accent tint, which keeps the text legible on the dark surface.
+  if (toggleLabel) toggleLabel.textContent = 'Dark mode';
 }
 
 function updateSiteLabel(): void {
@@ -338,7 +350,7 @@ function handleOpenSiteRules(): void {
 function handleToggleError(err: unknown): void {
   // eslint-disable-next-line no-console
   console.error('[Nocturn popup] Toggle error:', err);
-  setStatus('Could not reach the page. Try reloading.', 'error');
+  setStatus("Couldn't reach the page. Try reloading.", 'error');
 }
 
 function attachListeners(): void {
@@ -349,7 +361,7 @@ function attachListeners(): void {
   siteActionSelect?.addEventListener('change', () => {
     handleSiteActionChange().catch((err) => {
       console.error('[Nocturn popup] Site action error:', err);
-      setStatus('Could not save site rule.', 'error');
+      setStatus("Couldn't save site rule.", 'error');
     });
   });
 

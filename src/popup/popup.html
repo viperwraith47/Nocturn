@@ -5,122 +5,252 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nocturn — Quick Controls</title>
   <style>
-    /* Nocturn popup — dark-native utility UI.
-       rem units scale with the browser's root font size;
-       every control has a visible focus indicator; and
-       prefers-reduced-motion is respected throughout. */
+    /* Nocturn popup — a dark-native UI built on Apple's Liquid Glass material.
+       The popup is a popover that floats above the page, i.e. the *functional*
+       layer, so the regular glass variant lives on <body>. Inner controls are
+       opaque surfaces that rest *on* that material — glass is never stacked on
+       glass. Motion, transparency, and contrast states are all respected. */
     :root {
-      --nocturn-popup-bg: #0e0e10;
-      --nocturn-popup-surface: #151517;
-      --nocturn-popup-surface-hover: #1c1c1f;
-      --nocturn-popup-border: #2a2a2e;
-      --nocturn-popup-text: #e2e2e2;
-      --nocturn-popup-muted: #8a8a94;
-      /* Twilight indigo — a night-sky accent that ties the UI to the
-         crescent-moon icon instead of a generic system blue. */
-      --nocturn-popup-accent: #818cf8;
-      --nocturn-popup-accent-hover: #9394f2;
-      --nocturn-popup-danger: #ef4444;
-      --nocturn-popup-warning: #f59e0b;
+      /* Nocturn palette — the twilight-indigo accent is the brand signature. */
+      --nocturn-popup-bg:            #0e0e10;
+      --nocturn-popup-surface:       #151517;
+      --nocturn-popup-surface-ho:    #1c1c1f;
+      --nocturn-popup-border:        #2a2a2e;
+      --nocturn-popup-text:          #e2e2e2;
+      --nocturn-popup-muted:         #8a8a94;
+      --nocturn-popup-accent:        #818cf8;
+      --nocturn-popup-accent-ho:     #9394f2;
+      --nocturn-popup-danger:        #ef4444;
+      --nocturn-popup-warning:       #f59e0b;
+
+      /* Liquid Glass — regular variant (text-heavy surface, dark appearance):
+         60–80% opaque fill, ~22px blur, ~1.4× saturation boost. */
+      --nocturn-popup-glass:          rgba(14, 14, 16, 0.72);
+      --nocturn-popup-glass-border:   rgba(42, 42, 46, 0.45);
+      --nocturn-popup-glass-highlight: rgba(255, 255, 255, 0.06);
+
+      /* Opaque surfaces that rest on the glass. These are NOT glass — they
+         keep text legible and the visual hierarchy clear. */
+      --nocturn-popup-control:         rgba(21, 21, 23, 0.62);
+      --nocturn-popup-control-ho:      rgba(28, 28, 31, 0.70);
+
+      /* A whisper of accent shown behind the active primary toggle so state is
+         obvious without sacrificing label contrast. */
+      --nocturn-popup-accent-tint:     rgba(130, 140, 248, 0.12);
     }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { font-size: 16px; }
+
+    /* The popup surface — the floating functional layer. */
     body {
       width: 320px;
       min-height: 80px;
+      margin: 0;
+      padding: 8px;
+      background: var(--nocturn-popup-glass);
+      border: 1px solid var(--nocturn-popup-glass-border);
+      border-top-color: var(--nocturn-popup-glass-highlight);
+      border-bottom-color: rgba(0, 0, 0, 0.30);
+      border-radius: 16px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.50);
+      backdrop-filter: blur(22px) saturate(1.4);
+      -webkit-backdrop-filter: blur(22px) saturate(1.4);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
-      background: var(--nocturn-popup-bg);
+      font-size: 0.8125rem;   /* ~13 pt body — at/above the 10 pt minimum */
+      line-height: 1.45;
       color: var(--nocturn-popup-text);
-      font-size: 0.8125rem;
-      line-height: 1.5;
-      border: 1px solid var(--nocturn-popup-border);
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
       overflow: hidden;
     }
+
     .hidden { display: none !important; }
-    .loading-state { display: flex; justify-content: center; align-items: center; padding: 24px; }
+
+    /* ── Loading ─────────────────────────────────────────── */
+    .loading-state {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px 0;
+    }
     .spinner {
-      width: 28px; height: 28px;
-      border: 3px solid var(--nocturn-popup-border);
+      width: 22px; height: 22px;
+      border: 2.5px solid var(--nocturn-popup-border);
       border-top-color: var(--nocturn-popup-accent);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .header { display: flex; align-items: center; gap: 10px; padding: 12px 16px 8px; }
-    .logo { width: 28px; height: 28px; flex-shrink: 0; }
-    .title { display: flex; flex-direction: column; }
-    .name { font-size: 0.9375rem; font-weight: 600; color: var(--nocturn-popup-text); }
-    .subtitle { font-size: 0.6875rem; color: var(--nocturn-popup-muted); line-height: 1.2; }
-    .toggle-section { padding: 12px 16px; }
-    /* 44px — meets the 44pt touch-target minimum for the primary action. */
-    .toggle-btn {
-      width: 100%; height: 44px;
-      background: var(--nocturn-popup-surface);
-      border: 1px solid var(--nocturn-popup-border);
-      border-radius: 10px; cursor: pointer;
-      display: flex; align-items: center;
-      padding: 0 14px; transition: all 0.2s ease; position: relative;
+
+    /* ── Header ─────────────────────────────────────────── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 4px 6px;
     }
-    .toggle-btn:hover { background: var(--nocturn-popup-surface-hover); border-color: var(--nocturn-popup-accent); }
-    .toggle-btn--on { background: var(--nocturn-popup-accent); }
-    .toggle-btn--on:hover { background: var(--nocturn-popup-accent-hover); }
-    .toggle-label { font-size: 0.8125rem; font-weight: 500; z-index: 1; }
-    /* Toggle switch (visual indicator inside the button) */
+    .logo { width: 24px; height: 24px; flex-shrink: 0; }
+    .title { display: flex; flex-direction: column; }
+    .name {
+      font-size: 0.9375rem;   /* ~15 pt */
+      font-weight: 600;
+      color: var(--nocturn-popup-text);
+    }
+    .subtitle {
+      font-size: 0.6875rem;   /* ~11 pt */
+      color: var(--nocturn-popup-muted);
+      line-height: 1.3;
+    }
+
+    /* ── Primary toggle (the prominent action) ───────────── */
+    .toggle-section { padding: 8px 4px; }
+    /* The whole row is the hit target (44 × 44 minimum). */
+    .toggle-btn {
+      width: 100%;
+      height: 44px;
+      padding: 0 12px;
+      background: var(--nocturn-popup-control);
+      border: 1px solid var(--nocturn-popup-glass-border);
+      border-top-color: var(--nocturn-popup-glass-highlight);
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .toggle-btn:hover {
+      background: var(--nocturn-popup-control-ho);
+      border-color: var(--nocturn-popup-accent);
+    }
+    .toggle-btn:active { box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.10); }
+    /* Active state: the switch becomes the accent and the row gets a whisper
+       tint. The label stays light for contrast. */
+    .toggle-btn--on {
+      background: var(--nocturn-popup-accent-tint);
+      border-color: var(--nocturn-popup-accent);
+    }
+    .toggle-btn--on:hover {
+      background: rgba(130, 140, 248, 0.18);
+      border-color: var(--nocturn-popup-accent-ho);
+    }
+    .toggle-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .toggle-label {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--nocturn-popup-text);
+    }
+    /* On/off slide switch. */
     .toggle-switch {
       margin-left: auto;
-      width: 40px; height: 22px;
+      width: 40px;
+      height: 22px;
       background: var(--nocturn-popup-border);
       border-radius: 999px;
       position: relative;
       flex-shrink: 0;
+      transition: background 0.15s ease;
     }
-    .toggle-switch.active { background: rgba(255,255,255,0.3); }
+    .toggle-switch.active { background: var(--nocturn-popup-accent); }
     .toggle-switch::before {
       content: '';
       position: absolute;
       top: 2px; left: 2px;
       width: 18px; height: 18px;
-      background: var(--nocturn-popup-text);
+      background: var(--nocturn-popup-text);   /* light knob for the off track */
       border-radius: 50%;
-      transition: transform 0.2s ease, background 0.2s ease;
+      transition: transform 0.15s ease, background 0.15s ease;
     }
+    /* On: dark knob on the blue track — both well above contrast minimum. */
     .toggle-switch.active::before {
       transform: translateX(18px);
       background: var(--nocturn-popup-bg);
     }
+
+    /* ── Status line ────────────────────────────────────── */
     .status {
-      display: flex; align-items: center; gap: 6px;
-      padding: 6px 16px 14px; font-size: 0.6875rem; color: var(--nocturn-popup-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px 4px;
+      font-size: 0.6875rem;
     }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--nocturn-popup-accent); }
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--nocturn-popup-accent);
+      flex-shrink: 0;
+    }
     .status-text { font-size: 0.6875rem; }
-    .quick-actions { display: flex; gap: 8px; padding: 8px 16px 4px; }
-    .action-btn {
-      flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px;
-      height: 32px; background: var(--nocturn-popup-surface);
-      border: 1px solid var(--nocturn-popup-border); border-radius: 8px;
-      cursor: pointer; font-size: 0.6875rem; color: var(--nocturn-popup-text);
-      transition: all 0.15s ease;
+
+    /* ── Quick actions ──────────────────────────────────── */
+    .quick-actions {
+      display: flex;
+      gap: 8px;
+      padding: 6px 4px 4px;
     }
+    .action-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 34px;
+      background: var(--nocturn-popup-control);
+      border: 1px solid var(--nocturn-popup-glass-border);
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--nocturn-popup-text);
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+    .action-btn .icon { display: inline-flex; align-items: center; }
     .action-btn:hover {
-      background: var(--nocturn-popup-surface-hover); border-color: var(--nocturn-popup-accent);
+      background: var(--nocturn-popup-control-ho);
+      border-color: var(--nocturn-popup-accent);
       color: var(--nocturn-popup-accent);
     }
-    .action-btn .icon { font-size: 0.8125rem; }
-    .site-override { display: flex; align-items: center; gap: 8px; padding: 10px 16px 14px; }
-    .site-override__label { font-size: 0.6875rem; color: var(--nocturn-popup-muted); min-width: 70px; }
-    .site-select {
-      flex: 1; height: 28px;
-      background: var(--nocturn-popup-surface);
-      border: 1px solid var(--nocturn-popup-border); border-radius: 8px;
-      color: var(--nocturn-popup-text); font-size: 0.75rem; padding: 0 8px;
-      cursor: pointer; transition: border-color 0.15s ease;
-    }
-    .error-state { padding: 16px; text-align: center; color: var(--nocturn-popup-muted); font-size: 0.75rem; }
+    .action-btn:active { box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.10); }
 
-    /* Focus indicators — visible on keyboard navigation. */
+    /* ── Site override ──────────────────────────────────── */
+    .site-override {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 4px 6px;
+    }
+    .site-override__label {
+      font-size: 0.6875rem;
+      color: var(--nocturn-popup-muted);
+      min-width: 70px;
+    }
+    .site-select {
+      flex: 1;
+      height: 28px;
+      background: var(--nocturn-popup-control);
+      border: 1px solid var(--nocturn-popup-glass-border);
+      border-radius: 8px;
+      color: var(--nocturn-popup-text);
+      font-size: 0.75rem;
+      padding: 0 8px 0 10px;
+      cursor: pointer;
+      transition: border-color 0.15s ease;
+    }
+    .site-select:hover { border-color: var(--nocturn-popup-accent); }
+    .site-select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Error ──────────────────────────────────────────── */
+    .error-state {
+      padding: 22px 24px;
+      text-align: center;
+    }
+    .error-state p {
+      font-size: 0.78125rem;   /* ~12.5 pt */
+      color: var(--nocturn-popup-muted);
+      line-height: 1.5;
+    }
+
+    /* ── Focus indicators (keyboard navigation) ─────────── */
     .toggle-btn:focus-visible,
     .action-btn:focus-visible,
     .site-select:focus-visible {
@@ -128,7 +258,7 @@
       outline-offset: 2px;
     }
 
-    /* Respect reduced-motion — disable all animation and transition. */
+    /* ── Respect reduced motion ────────────────────────── */
     @media (prefers-reduced-motion: reduce) {
       .spinner { animation: none; }
       *, *::before, *::after {
@@ -136,6 +266,26 @@
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
       }
+    }
+
+    /* ── Reduced transparency → opaque surface (no blur) ─ */
+    @media (prefers-reduced-transparency: reduce) {
+      body {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        background: var(--nocturn-popup-bg);
+      }
+    }
+
+    /* ── Increase contrast → stronger borders & fills ─── */
+    @media (prefers-contrast: more) {
+      body {
+        border-color: var(--nocturn-popup-border);
+        border-bottom-color: var(--nocturn-popup-border);
+      }
+      .toggle-btn,
+      .action-btn,
+      .site-select { border-color: var(--nocturn-popup-border); }
     }
   </style>
 </head>
@@ -147,7 +297,7 @@
 
     <div id="main" class="hidden">
       <div class="header">
-        <img src="../assets/icons/icon-32.png" alt="Nocturn" class="logo" />
+        <img src="../assets/icons/icon-32.png" alt="" class="logo" />
         <div class="title">
           <span class="name">Nocturn</span>
           <span class="subtitle" id="site-label">…</span>
@@ -155,7 +305,9 @@
       </div>
 
       <div class="toggle-section">
-        <button id="toggle-btn" class="toggle-btn" aria-label="Toggle dark mode">
+        <button id="toggle-btn" class="toggle-btn"
+                role="switch" aria-checked="false" aria-disabled="false"
+                aria-label="Toggle dark mode">
           <span class="toggle-label">Dark mode</span>
           <span class="toggle-switch"></span>
         </button>
@@ -168,25 +320,42 @@
 
       <div class="quick-actions">
         <button id="open-options" class="action-btn" aria-label="Settings">
-          <span class="icon" aria-hidden="true">⚙️</span> Settings
+          <span class="icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.75"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 2v4m0 12v4M4.22 4.22l2.83 2.83m8.49 8.49l2.83 2.83"/>
+              <path d="M2 12h4m12 0h4M4.22 19.78l2.83-2.83m8.49-8.49l2.83-2.83"/>
+            </svg>
+          </span>
+          Settings
         </button>
-        <button id="open-site-rules" class="action-btn" aria-label="Site rules">
-          <span class="icon" aria-hidden="true">🌐</span> Site rules
+        <button id="open-site-rules" class="action-btn" aria-label="Site Rules">
+          <span class="icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.75"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M2.5 12a9.5 9.5 0 0 1 19 0M12 2.5a9.5 9.5 0 0 1 0 19"/>
+            </svg>
+          </span>
+          Site Rules
         </button>
       </div>
 
       <div class="site-override">
-        <div class="site-override__label">This site:</div>
+        <label class="site-override__label" for="site-action">This site</label>
         <select id="site-action" class="site-select">
-          <option value="auto">Auto-detect</option>
-          <option value="always-on">Always on</option>
-          <option value="always-off">Always off</option>
+          <option value="auto">Auto-Detect</option>
+          <option value="always-on">Always On</option>
+          <option value="always-off">Always Off</option>
         </select>
       </div>
     </div>
 
     <div id="error" class="hidden error-state">
-      <p>Nocturn is not active on this page.</p>
+      <p class="error-text">Nocturn is not active on this page.</p>
     </div>
   </div>
 

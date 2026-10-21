@@ -108,6 +108,13 @@ node scripts/generate-icons.js
 
 ## Changelog
 
+### v1.0.3 — Popup polish: Liquid Glass
+- **Design**: Applied Apple's Liquid Glass material (regular variant) to the popup surface — a translucent dark fill with blur and a one-pixel hairline highlight — treating the popover as the floating functional layer. Inner controls rest on the material as opaque surfaces, so glass is never stacked on glass (restraint + layer discipline).
+- **Accessibility**: The popup now responds to `prefers-reduced-transparency` (opaque fallback, no blur), `prefers-contrast: more` (stronger borders), and continues to respect `prefers-reduced-motion`.
+- **Accessibility / contrast**: The dark-mode toggle no longer paints the entire button in accent color with a light label (the previous full-accent button failed contrast). State is now conveyed by the switch and a whisper accent tint, keeping the label legible; the toggle is now a semantic `role="switch"` with `aria-checked`/`aria-disabled`.
+- **UX**: Consolidated the duplicate error + status messaging into a single, clear line; replaced emoji icons with clean vector glyphs; labeled the site-override select with a `<label>`.
+- **Writing**: Cleaned up popup copy and applied consistent title-style capitalization (Settings, Site Rules, Always On, Auto-Detect, Always Off).
+
 ### v1.0.2 — Apple Design Review
 - **Accessibility**: Options-page toggles are now semantic `<button role="switch">` elements with `aria-checked` and full keyboard support (Space/Enter). Previously they were non-focusable `<div>`s that keyboard and screen-reader users could not operate.
 - **Accessibility**: Both the popup and options page now respect `prefers-reduced-motion`, disabling all animations and transitions when the user requests reduced motion.
